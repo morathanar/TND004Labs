@@ -7,28 +7,28 @@
 
 using namespace std;
 
-template <class Object>
+template <class T>
 class Set{
 public:
 //constructors
     Set(){
-        head = make_shared<Node<Object>>();
-        tail = make_shared<Node<Object>>();
+        head = make_shared<Node<T>>();
+        tail = make_shared<Node<T>>();
         head->prev = nullptr;
         head->next = tail;
         tail->next = nullptr;
         tail->prev = head;
     }
 
-    Set(Object&& v) {
-        head = make_shared<Node<Object>>();
-        tail = make_shared<Node<Object>>();
-        head->next = make_shared<Node<Object>>(v, head, tail);
+    Set(T&& v) {
+        head = make_shared<Node<T>>();
+        tail = make_shared<Node<T>>();
+        head->next = make_shared<Node<T>>(v, head, tail);
         tail->prev = head->next;
     }
 
 //print operator operator<<
-    friend ostream& operator<<(ostream& os, const Set<Object> & S){
+    friend ostream& operator<<(ostream& os, const Set<T> & S){
     auto tmp = S.head->next;
     os << "{ ";
     while (tmp->next != nullptr){
@@ -40,7 +40,7 @@ public:
 }
 
 private:
-    shared_ptr<Node<Object>> head, tail;
+    shared_ptr<Node<T>> head, tail;
 };
 
 #endif // SET_H

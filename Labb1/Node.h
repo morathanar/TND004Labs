@@ -7,16 +7,16 @@
 
 using namespace std;
 
-template <class Object>
+template <class T>
 class Node{
 public:
-    Node(const Object & d = Object{}, shared_ptr<Node<Object>> p = nullptr, shared_ptr<Node<Object>> n = nullptr) : data {d}, prev{p}, next{n} {}
+    Node(const T & d = T{}, shared_ptr<Node<T>> p = nullptr, shared_ptr<Node<T>> n = nullptr) : data {d}, prev{p}, next{n} {}
 
-    Node(const Object && d, shared_ptr<Node<Object>> p = nullptr, shared_ptr<Node<Object>> n = nullptr) : data{move(d)}, prev{p}, next{n} {}
+    Node(const T && d, shared_ptr<Node<T>> p = nullptr, shared_ptr<Node<T>> n = nullptr) : data{move(d)}, prev{p}, next{n} {}
 
-    Object data;
-    shared_ptr<Node<Object>> prev;
-    shared_ptr<Node<Object>> next;
+    T data;
+    shared_ptr<Node<T>> prev;
+    shared_ptr<Node<T>> next;
 };
 
 
