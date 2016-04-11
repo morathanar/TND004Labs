@@ -5,20 +5,18 @@
 #include "Set.h"
 #include <iostream>
 
-template <typename Object>
-struct Node{
-    friend class Set;
+using namespace std;
+
+template <class Object>
+class Node{
 public:
-    Node(const Object & d = Object{}, Node *p = nullptr, Node *n = nullptr) : data {d}, prev{p}, next{n} {}
+    Node(const Object & d = Object{}, shared_ptr<Node<Object>> p = nullptr, shared_ptr<Node<Object>> n = nullptr) : data {d}, prev{p}, next{n} {}
 
-    Node(const Object && d, Node *p = nullptr, Node *n = nullptr) : data{std::move(d)}, prev{p}, next{n} {}
+    Node(const Object && d, shared_ptr<Node<Object>> p = nullptr, shared_ptr<Node<Object>> n = nullptr) : data{move(d)}, prev{p}, next{n} {}
 
-
-private:
-    const Object data;
-    std::shared_ptr<Node<Object>> prev;
-    std::shared_ptr<Node<Object>> next;
-    //friend ostream& operator<<(ostream& os, const Set& S);
+    Object data;
+    shared_ptr<Node<Object>> prev;
+    shared_ptr<Node<Object>> next;
 };
 
 

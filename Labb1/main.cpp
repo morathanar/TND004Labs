@@ -28,7 +28,7 @@ int main()
 
     cout << "S1 = " << S1 << endl;
     cout << "S2 = " << S2 << endl;
-
+#if 0
     /*****************************************************
     * TEST PHASE 1                                       *
     * Constructor: create a Set from an array            *
@@ -206,6 +206,6 @@ int main()
     cout << "The binary strings: " << words << endl;
 
 	cout << "Ending ...." << endl;
-
+#endif
     return 0;
 }

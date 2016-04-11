@@ -1,13 +1,19 @@
 #ifndef SET_H
 #define SET_H
+
 #include "Node.h"
 #include <memory>
 #include <iostream>
-template <typename Object>
+
+using namespace std;
+
+template <class Object>
 class Set{
 public:
 //constructors
     Set(){
+        head = make_shared<Node<Object>>();
+        tail = make_shared<Node<Object>>();
         head->prev = nullptr;
         head->next = tail;
         tail->next = nullptr;
@@ -15,29 +21,27 @@ public:
     }
 
     Set(Object&& v) {
-        head->next = Node<Object>(v, head, tail);
+        head = make_shared<Node<Object>>();
+        tail = make_shared<Node<Object>>();
+        head->next = make_shared<Node<Object>>(v, head, tail);
         tail->prev = head->next;
     }
 
 //print operator operator<<
-    friend std::ostream& operator<<(std::ostream& os, const Set<Object> & S){
+    friend ostream& operator<<(ostream& os, const Set<Object> & S){
     auto tmp = S.head;
     os << "{ ";
     while (tmp->next != nullptr){
         os << tmp->data << " ";
         tmp = tmp->next;
     }
-    os << "}" << std::endl;
+    os << "}" << endl;
     return os;
 }
 
 private:
-
-
-    std::shared_ptr<Node<Object>> head;
-    std::shared_ptr<Node<Object>> tail;
+    shared_ptr<Node<Object>> head, tail;
 };
-
 
 #endif // SET_H
 
