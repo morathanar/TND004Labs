@@ -29,7 +29,7 @@ public:
 
 //print operator operator<<
     friend ostream& operator<<(ostream& os, const Set<Object> & S){
-    auto tmp = S.head;
+    auto tmp = S.head->next;
     os << "{ ";
     while (tmp->next != nullptr){
         os << tmp->data << " ";
