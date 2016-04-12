@@ -31,7 +31,6 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="Node.h" />
 		<Unit filename="Set.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
