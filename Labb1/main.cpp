@@ -28,7 +28,7 @@ int main()
 
     cout << "S1 = " << S1 << endl;
     cout << "S2 = " << S2 << endl;
-#if 0
+
     /*****************************************************
     * TEST PHASE 1                                       *
     * Constructor: create a Set from an array            *
@@ -43,6 +43,7 @@ int main()
 
     cout << "S3 = " << S3 << endl;
     cout << "S4 = " << S4 << endl;
+
 
     /*****************************************************
     * TEST PHASE 2                                       *
@@ -64,7 +65,7 @@ int main()
 
     cout << "S1 = " << S1 << endl;
     cout << "S2 = " << S2 << endl;
-
+#if 0
     /*****************************************************
     * TEST PHASE 4                                       *
     * Move constructor                                   *
