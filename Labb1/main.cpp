@@ -136,9 +136,8 @@ int main()
 
     S6 += S4;
     S4 *= S4;
-#if 0
     S1 -= S1;
-#endif
+
     cout << "S6 = " << S6 << endl;
     cout << "S4 = " << S4 << endl;
 #if 0

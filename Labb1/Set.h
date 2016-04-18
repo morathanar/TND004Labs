@@ -26,6 +26,7 @@ public:
     const Set& operator=(Set S);          // Assignment
     const Set& operator+=(const Set & S); // Union
     const Set& operator*=(const Set & S); // Intersection
+    const Set& operator-=(const Set & S); // Difference
 
     // Formatted output operator<<
     friend ostream& operator<<(ostream& os, const Set<T> & S){
@@ -35,7 +36,7 @@ public:
             os << tmp->data << " ";
             tmp = tmp->next;
         }
-        os << "}" << endl;
+        os << "}";
         return os;
     }
 
@@ -60,6 +61,9 @@ private:
         p->next->prev = tmp;
         p->next = tmp;
     };
+    /*
+    * Removes node n and returns a pointer to the node that was after the removed node
+    */
     void remove_node(shared_ptr<Node> n) {
         auto p = n->prev.lock();
         p->next = n->next;
@@ -88,17 +92,18 @@ private:
         return n->next;
     }
 
-    shared_ptr<Node> remove_element_at(const T & v, shared_ptr<Node> n){
-        while(n->next != tail){
-            if(n->next->data != v && n->next->data < v){
+    /*
+    *
+    */
+    shared_ptr<Node> remove_element_at(const T & v, shared_ptr<Node> n) {
+        while(n->next != tail) {
+            if(n->next->data != v && n->next->data < v) {
                 remove_node(n->next);
             }
             n = n->next;
         }
         return n;
     }
-
-    //
 
     shared_ptr<Node> head, tail;
 };
@@ -192,7 +197,7 @@ const Set<T>& Set<T>::operator=(Set S) {
 }
 
 template<class T>
-const Set<T>& Set<T>::operator+=(const Set & S){
+const Set<T>& Set<T>::operator+=(const Set & S) {
     auto src = S.head->next;
     auto dest = head->next;
 
@@ -205,10 +210,13 @@ const Set<T>& Set<T>::operator+=(const Set & S){
 }
 
 template<class T>
-const Set<T>& Set<T>::operator*=(const Set & S){
+const Set<T>& Set<T>::operator*=(const Set & S) {
     auto tmpR = head->next;
     auto tmpS = S.head;
 
+    /*
+    * Loop through set S and remove all elements in this set that is not in S
+    */
     while(tmpS->next != S.tail){
         tmpR = remove_element_at(tmpS->data, tmpR);
         tmpS = tmpS->next;
@@ -217,6 +225,34 @@ const Set<T>& Set<T>::operator*=(const Set & S){
     return *this;
 }
 
+template<class T>
+const Set<T>& Set<T>::operator-=(const Set & S) {
+    auto tmpR = head;
+    auto tmpS = S.head;
+
+    /*
+    * For each element in S, loop through elements in this set until
+    * a bigger element is found. If an equal element is found, remove it
+    */
+    while(tmpS->next != S.tail && tmpR->next != tail) {
+
+/*        cout << tmpS->next->data << " " <<endl;
+
+        if (tmpS->next->data == tmpR->next->data) {
+            remove_node(tmpR->next);
+            // An element was removed from R
+        } else if (tmpS->data > tmpR->data) {
+            // Advance R
+            tmpR = tmpR->next;
+        }
+
+
+*/
+        tmpS = tmpS->next;
+    }
+
+    return *this;
+}
 
 
 #endif // SET_H
