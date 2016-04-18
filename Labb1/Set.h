@@ -49,59 +49,70 @@ public:
 
     //member functions
     //check if a set is empty
-    bool _empty(){
-        if(this.head->next = this.tail){ return true;}
-        else{return false;}
+    bool _empty() {
+        if(head->next = tail) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //cardinality function that returns legth of set
-    int& cardinality(T & S){
-        auto tmp = S.head->next;
+    int cardinality() {
+        auto tmp = head->next;
         int i = 0;
-        while(tmp != S.tail){
+        while(tmp != tail){
             i++;
             tmp = tmp->next;
         }
-        return i+1;
+        return i;
     }
     //memberfunction to check if value v is a part of the set
-    bool is_member(T & v){
-        auto tmp = this.head;
-        if(this._empty()){ return true;}
-        else{
-            while(tmp->next->value != v && tmp->next != nullptr){
-                tmp = tmp->next;
+    bool is_member(const T & v){
+        auto tmp = head->next;
+        while(tmp != tail){
+            if (tmp->data == v) {
+                return true;
             }
-            if(tmp->next == nullptr){return false;}
-            else{return true;}
+            tmp = tmp->next;
         }
+        return false;
     }
 
     //member function to make set R empty
     void make_empty(){
-        while(this.head->next != this.tail){
-            remove_node(this.head->next);
+        while(head->next != tail){
+            remove_node(head->next);
         }
     }
-
+    //assignment operator
     Set& operator=(Set S){
         std::swap(head, S.head);
         std::swap(tail, S.tail);
         return *this;
     }
-#if 0
-    //overloaded operator+= such that R+=S => R = R U S
-    void operator+=(T & S){
-        auto tmpT = this.head;
-        auto tmpS = S.head;
-        if(this._empty()){
-            this.head(std::move(S.head));
-        }else if(S._empty()){
-        }else{
-            if(R.cardinality() > S.cardinality()){auto tmp = }
+
+    //overloaded operator+= such that R+=S => R = R Union S
+    void operator+=(const Set & S){
+        auto src = S.head->next;
+        auto dest = head->next;
+
+        while (src != S.tail) {
+            dest = insert_element_after(src->data, dest);
+            src = src->next;
         }
     }
-#endif
+
+    //overloaded operator*= intersectrion The elements in R that are also in S
+    void operator*=(const Set & S){
+        auto tmpR = head->next;
+        auto tmpS = S.head;
+
+        while(tmpS->next != S.tail){
+            tmpR = remove_element_at(tmpS->data, tmpR);
+            tmpS = tmpS->next;
+        }
+    }
 
 //print operator operator<<
     friend ostream& operator<<(ostream& os, const Set<T> & S){
@@ -129,7 +140,7 @@ private:
         weak_ptr<Node> prev;
         shared_ptr<Node> next;
     };
-    // member functions of class Node
+
     // Helper functions to manage insertion/removal
     void insert_after(shared_ptr<Node> p, const T& v) {
         auto tmp = make_shared<Node>(v, p, p->next);
@@ -137,10 +148,43 @@ private:
         p->next = tmp;
     };
     // delete node that was removed or does shared_ptr manage that?
-    void remove_node(shared_ptr<Node> p) {
-        p->prev->next = p->next;
-        p->next->prev = p->prev;
+    void remove_node(shared_ptr<Node> n) {
+        auto p = n->prev.lock();
+        p->next = n->next;
+        n->next->prev = n->prev;
     };
+
+    /*
+    * Finds the position for element v, starting the search at node n. Returns
+    * the node at which to continue searching the next time.
+    */
+    shared_ptr<Node> insert_element_after(const T & v, shared_ptr<Node> n ){
+        // Loop until end of list, or until the right position is found
+        while (n->next != tail) {
+            if (n->data == v) {
+                // No insertion needed
+                return n;
+            } else if (n->next->data > v){
+                // Insertion time!
+                insert_after(n, v);
+                return n->next;
+            }
+            n = n->next;
+        }
+        // List was empty
+        insert_after(n, v);
+        return n->next;
+    }
+
+    shared_ptr<Node> remove_element_at(const T & v, shared_ptr<Node> n){
+        while(n->next != tail){
+            if(n->next->data != v && n->next->data < v){
+                remove_node(n->next);
+            }
+            n = n->next;
+        }
+        return n;
+    }
 
     //private part of set starts here
     shared_ptr<Node> head, tail;

@@ -65,7 +65,7 @@ int main()
 
     cout << "S1 = " << S1 << endl;
     cout << "S2 = " << S2 << endl;
-#if 0
+
     /*****************************************************
     * TEST PHASE 4                                       *
     * Move constructor                                   *
@@ -95,12 +95,13 @@ int main()
 
     delete ptr_S;
 
-
     /*****************************************************
     * TEST PHASE 6                                       *
     * is_member                                          *
     ******************************************************/
     cout << "\nTEST PHASE 6: is_member\n\n";
+
+    cout << "S1: " << S1 << endl;
 
     for (int i = 1; i <= 5; i++)
     {
@@ -135,10 +136,12 @@ int main()
 
     S6 += S4;
     S4 *= S4;
+#if 0
     S1 -= S1;
-
+#endif
     cout << "S6 = " << S6 << endl;
     cout << "S4 = " << S4 << endl;
+#if 0
     cout << "S1 = " << S1 << endl;
 
 
