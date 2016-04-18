@@ -10,111 +10,24 @@ using namespace std;
 template <class T>
 class Set{
 public:
-//constructors
-    //initialize empty set
-    Set(){
-        head = make_shared<Node>();
-        tail = make_shared<Node>();
-        head->next = tail;
-        tail->prev = head;
-    }
-    //initialize set S = {v}
-    Set(const T& v) : Set() {
-        head->next = make_shared<Node>(v, head, tail);
-        tail->prev = head->next;
-    }
-    //initialize set S with set R
-    Set(const Set& R): Set() {
-        auto tmpR = R.head->next;
-        auto tmpS = head;
-        while(tmpR->next != nullptr){
-            tmpS->next = make_shared<Node>(tmpR->data, tmpS, tmpS->next);
-            tmpR = tmpR->next;
-            tmpS = tmpS->next;
-        }
-    }
+    // Constructors
+    Set();                  // Default
+    Set(const T& v);        // Type conversion
+    Set(const Set& R);      // Copy
+    Set(Set&& S) noexcept;  // Move
+    Set(int a[], int n);    // Conversion from sorded array
 
-    //move constructor, flyttar ett helt set eller ett värde i settet?
-    Set(Set&& S) noexcept : head(std::move(S.head)), tail(std::move(S.tail)) {S.head = nullptr; S.tail = nullptr; } // A(A&& o) noexcept : s(std::move(o.s)) { }
+    // Member functions
+    int cardinality();
+    bool is_member(const T & v);
+    void make_empty();
 
-    //create a set R from a sorted array a of n integers
-    Set(int a[], int n): Set() {
-        auto tmp = head;
-        int i = 0;
-        while(i < n){
-            insert_after(tmp, a[i++]);
-            tmp = tmp->next;
-        }
-    }
+    // Operators
+    const Set& operator=(Set S);          // Assignment
+    const Set& operator+=(const Set & S); // Union
+    const Set& operator*=(const Set & S); // Intersection
 
-    //member functions
-    //check if a set is empty
-    bool _empty() {
-        if(head->next = tail) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    //cardinality function that returns legth of set
-    int cardinality() {
-        auto tmp = head->next;
-        int i = 0;
-        while(tmp != tail){
-            i++;
-            tmp = tmp->next;
-        }
-        return i;
-    }
-    //memberfunction to check if value v is a part of the set
-    bool is_member(const T & v){
-        auto tmp = head->next;
-        while(tmp != tail){
-            if (tmp->data == v) {
-                return true;
-            }
-            tmp = tmp->next;
-        }
-        return false;
-    }
-
-    //member function to make set R empty
-    void make_empty(){
-        while(head->next != tail){
-            remove_node(head->next);
-        }
-    }
-    //assignment operator
-    Set& operator=(Set S){
-        std::swap(head, S.head);
-        std::swap(tail, S.tail);
-        return *this;
-    }
-
-    //overloaded operator+= such that R+=S => R = R Union S
-    void operator+=(const Set & S){
-        auto src = S.head->next;
-        auto dest = head->next;
-
-        while (src != S.tail) {
-            dest = insert_element_after(src->data, dest);
-            src = src->next;
-        }
-    }
-
-    //overloaded operator*= intersectrion The elements in R that are also in S
-    void operator*=(const Set & S){
-        auto tmpR = head->next;
-        auto tmpS = S.head;
-
-        while(tmpS->next != S.tail){
-            tmpR = remove_element_at(tmpS->data, tmpR);
-            tmpS = tmpS->next;
-        }
-    }
-
-//print operator operator<<
+    // Formatted output operator<<
     friend ostream& operator<<(ostream& os, const Set<T> & S){
         auto tmp = S.head->next;
         os << "{ ";
@@ -147,7 +60,6 @@ private:
         p->next->prev = tmp;
         p->next = tmp;
     };
-    // delete node that was removed or does shared_ptr manage that?
     void remove_node(shared_ptr<Node> n) {
         auto p = n->prev.lock();
         p->next = n->next;
@@ -186,9 +98,124 @@ private:
         return n;
     }
 
-    //private part of set starts here
+    //
+
     shared_ptr<Node> head, tail;
 };
+
+/*
+ * Constructors
+ */
+template <class T>
+Set<T>::Set() {
+    head = make_shared<Node>();
+    tail = make_shared<Node>();
+    head->next = tail;
+    tail->prev = head;
+}
+
+template <class T>
+Set<T>::Set(const T& v) : Set() {
+    head->next = make_shared<Node>(v, head, tail);
+    tail->prev = head->next;
+}
+
+template<class T>
+Set<T>::Set(const Set& R): Set() {
+    auto tmpR = R.head->next;
+    auto tmpS = head;
+    while(tmpR->next != nullptr){
+        tmpS->next = make_shared<Node>(tmpR->data, tmpS, tmpS->next);
+        tmpR = tmpR->next;
+        tmpS = tmpS->next;
+    }
+}
+
+template<class T>
+Set<T>::Set(Set&& S) noexcept : head(std::move(S.head)), tail(std::move(S.tail)) {
+    S.head = nullptr;
+    S.tail = nullptr;
+}
+
+template<class T>
+Set<T>::Set(int a[], int n): Set() {
+    auto tmp = head;
+    int i = 0;
+    while(i < n){
+        insert_after(tmp, a[i++]);
+        tmp = tmp->next;
+    }
+}
+
+
+/*
+* Puclic member functions
+*/
+template<class T>
+int Set<T>::cardinality() {
+    auto tmp = head->next;
+    int i = 0;
+    while(tmp != tail){
+        i++;
+        tmp = tmp->next;
+    }
+    return i;
+}
+
+template<class T>
+bool Set<T>::is_member(const T & v) {
+    auto tmp = head->next;
+    while(tmp != tail){
+        if (tmp->data == v) {
+            return true;
+        }
+        tmp = tmp->next;
+    }
+    return false;
+}
+
+template<class T>
+void Set<T>::make_empty() {
+    while(head->next != tail){
+        remove_node(head->next);
+    }
+}
+
+/*
+* Operators
+*/
+template<class T>
+const Set<T>& Set<T>::operator=(Set S) {
+    std::swap(head, S.head);
+    std::swap(tail, S.tail);
+    return *this;
+}
+
+template<class T>
+const Set<T>& Set<T>::operator+=(const Set & S){
+    auto src = S.head->next;
+    auto dest = head->next;
+
+    while (src != S.tail) {
+        dest = insert_element_after(src->data, dest);
+        src = src->next;
+    }
+
+    return *this;
+}
+
+template<class T>
+const Set<T>& Set<T>::operator*=(const Set & S){
+    auto tmpR = head->next;
+    auto tmpS = S.head;
+
+    while(tmpS->next != S.tail){
+        tmpR = remove_element_at(tmpS->data, tmpR);
+        tmpS = tmpS->next;
+    }
+
+    return *this;
+}
 
 
 
