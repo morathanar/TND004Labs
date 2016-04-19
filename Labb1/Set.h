@@ -28,6 +28,11 @@ public:
     const Set& operator*=(const Set & S); // Intersection
     const Set& operator-=(const Set & S); // Difference
 
+    Set operator+(const Set& S);
+    Set operator*(const Set& S);
+    Set operator-(const Set& S);
+
+
     // Formatted output operator<<
     friend ostream& operator<<(ostream& os, const Set<T> & S){
         auto tmp = S.head->next;
@@ -235,25 +240,37 @@ const Set<T>& Set<T>::operator-=(const Set & S) {
     * a bigger element is found. If an equal element is found, remove it
     */
     while(tmpS->next != S.tail && tmpR->next != tail) {
-
-/*        cout << tmpS->next->data << " " <<endl;
-
         if (tmpS->next->data == tmpR->next->data) {
             remove_node(tmpR->next);
-            // An element was removed from R
-        } else if (tmpS->data > tmpR->data) {
+            // An element was removed from R, no need to check the same node in S again
+            // tmpR->next is now pointing to the node after the one that was removed
+            tmpS = tmpS->next;
+        } else if (tmpS->next->data > tmpR->next->data) {
             // Advance R
             tmpR = tmpR->next;
+        } else {
+            // Advance S
+            tmpS = tmpS->next;
         }
-
-
-*/
-        tmpS = tmpS->next;
     }
 
     return *this;
 }
 
+template<class T>
+Set<T> Set<T>::operator+(const Set& S) {
+    return (*this)+= S;
+}
+
+template<class T>
+Set<T> Set<T>::operator*(const Set& S) {
+    return (*this)*= S;
+}
+
+template<class T>
+Set<T> Set<T>::operator-(const Set& S) {
+    return (*this)-= S;
+}
 
 #endif // SET_H
 

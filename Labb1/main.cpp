@@ -140,7 +140,6 @@ int main()
 
     cout << "S6 = " << S6 << endl;
     cout << "S4 = " << S4 << endl;
-#if 0
     cout << "S1 = " << S1 << endl;
 
 
@@ -165,6 +164,7 @@ int main()
     cout << "S5 = " << S5 << endl;
     cout << "S6 = " << S6 << endl;
 
+#if 0
     /*****************************************************
     * TEST PHASE 10                                       *
     * Overloaded operators: equality, subset, and        *
