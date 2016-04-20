@@ -15,7 +15,7 @@ public:
     Set(const T& v);        // Type conversion
     Set(const Set& R);      // Copy
     Set(Set&& S) noexcept;  // Move
-    Set(int a[], int n);    // Conversion from sorded array
+    Set(T a[], int n);    // Conversion from sorded array
 
     // Member functions
     int cardinality();
@@ -29,14 +29,26 @@ public:
     const Set& operator*=(const Set & S); // Intersection
     const Set& operator-=(const Set & S); // Difference
 
-    Set operator+(const Set& S) const;
-    Set operator*(const Set& S) const;
-    Set operator-(const Set& S) const;
+    friend Set operator+(const Set& L, const Set& R) {
+        Set<T> ret(L);
+        return ret += R;
+    };
+
+    friend Set operator*(const Set& L, const Set& R) {
+        Set<T> ret(L);
+        return ret *= R;
+    };
+
+    friend Set operator-(const Set& L, const Set& R) {
+        Set<T> ret(L);
+        return ret -= R;
+    };
 
     bool operator<=(Set& S);
     bool operator<(Set& S);
     bool operator==(Set& S);
     bool operator!=(Set& S);
+
 
     // Formatted output operator<<
     friend ostream& operator<<(ostream& os, const Set<T> & S){
@@ -118,7 +130,7 @@ Set<T>::Set(Set&& S) noexcept : head(std::move(S.head)), tail(std::move(S.tail))
 }
 
 template<class T>
-Set<T>::Set(int a[], int n): Set() {
+Set<T>::Set(T a[], int n): Set() {
     auto tmp = head;
     int i = 0;
     while(i < n){
@@ -255,24 +267,6 @@ const Set<T>& Set<T>::operator-=(const Set & S) {
     }
 
     return *this;
-}
-
-template<class T>
-Set<T> Set<T>::operator+(const Set& S) const {
-    Set<T> ret(*this);
-    return ret += S;
-}
-
-template<class T>
-Set<T> Set<T>::operator*(const Set& S) const {
-    Set<T> ret(*this);
-    return ret *= S;
-}
-
-template<class T>
-Set<T> Set<T>::operator-(const Set& S) const {
-    Set<T> ret(*this);
-    return ret -= S;
 }
 
 template<class T>

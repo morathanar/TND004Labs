@@ -176,7 +176,7 @@ int main()
     cout << "S4!== S1 ? " << (S4 != S1 ? 'T' : 'F') << endl;
     cout << "S4 <= S1 ? " << (S4 <= S1 ? 'T' : 'F') << endl;
     cout << "S4 <  S1 ? " << (S4 <  S1 ? 'T' : 'F') << endl;
-#if 0
+
     /*****************************************************
     * TEST PHASE 11                                       *
     * Overloaded operators: mixed-mode arithmetic        *
@@ -209,6 +209,6 @@ int main()
     cout << "The binary strings: " << words << endl;
 
 	cout << "Ending ...." << endl;
-#endif
+
     return 0;
 }
