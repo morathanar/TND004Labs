@@ -29,9 +29,9 @@ public:
     const Set& operator*=(const Set & S); // Intersection
     const Set& operator-=(const Set & S); // Difference
 
-    Set operator+(const Set& S);
-    Set operator*(const Set& S);
-    Set operator-(const Set& S);
+    Set operator+(const Set& S) const;
+    Set operator*(const Set& S) const;
+    Set operator-(const Set& S) const;
 
     bool operator<=(const Set& S);
     bool operator<(const Set& S);
@@ -79,41 +79,6 @@ private:
         p->next = n->next;
         n->next->prev = n->prev;
     };
-
-    /*
-    * Finds the position for element v, starting the search at node n. Returns
-    * the node at which to continue searching the next time.
-    */
-    shared_ptr<Node> insert_element_after(const T & v, shared_ptr<Node> n ){
-        // Loop until end of list, or until the right position is found
-        while (n->next != tail) {
-            if (n->data == v) {
-                // No insertion needed
-                return n;
-            } else if (n->next->data > v){
-                // Insertion time!
-                insert_after(n, v);
-                return n->next;
-            }
-            n = n->next;
-        }
-        // List was empty
-        insert_after(n, v);
-        return n->next;
-    }
-
-    /*
-    *
-    */
-    shared_ptr<Node> remove_element_at(const T & v, shared_ptr<Node> n) {
-        while(n->next != tail) {
-            if(n->next->data != v && n->next->data < v) {
-                remove_node(n->next);
-            }
-            n = n->next;
-        }
-        return n;
-    }
 
     shared_ptr<Node> head, tail;
 };
@@ -213,12 +178,25 @@ const Set<T>& Set<T>::operator=(Set S) {
 
 template<class T>
 const Set<T>& Set<T>::operator+=(const Set & S) {
-    auto src = S.head->next;
-    auto dest = head->next;
+    auto tmpR = head;
+    auto tmpS = S.head;
 
-    while (src != S.tail) {
-        dest = insert_element_after(src->data, dest);
-        src = src->next;
+    while (tmpS->next != S.tail) {
+        if (tmpR->next == tail) {
+            insert_after(tmpR, tmpS->next->data);
+            tmpR = tmpR->next;
+            tmpS = tmpS->next;
+        } else if (tmpS->next->data > tmpR->next->data) {
+            // Not the right place, advance R
+            tmpR = tmpR->next;
+        } else if (tmpS->next->data == tmpR->next->data) {
+            // Element already in set
+            tmpS = tmpS->next;
+        } else if (tmpS->next->data < tmpR->next->data) {
+            // Insert element before tested element
+            insert_after(tmpR, tmpS->next->data);
+            tmpS = tmpS->next;
+        }
     }
 
     return *this;
@@ -226,15 +204,27 @@ const Set<T>& Set<T>::operator+=(const Set & S) {
 
 template<class T>
 const Set<T>& Set<T>::operator*=(const Set & S) {
-    auto tmpR = head->next;
+    auto tmpR = head;
     auto tmpS = S.head;
 
     /*
-    * Loop through set S and remove all elements in this set that is not in S
+    * Loop through this set and remove all elements in this set that is not in S
     */
-    while(tmpS->next != S.tail){
-        tmpR = remove_element_at(tmpS->data, tmpR);
-        tmpS = tmpS->next;
+    while(tmpR->next != tail) {
+        if (tmpS->next == S.tail) {
+            // Reached end of S, remove the rest of the nodes
+            remove_node(tmpR->next);
+        } else if (tmpS->next->data > tmpR->next->data) {
+            // Data not found in S, remove node from R
+            remove_node(tmpR->next);
+            // tmpR->next is now pointing to the node after the one that was removed
+        } else if (tmpS->next->data == tmpR->next->data) {
+            // Data in both sets, keep it. Advance R
+            tmpR = tmpR->next;
+        } else {
+            // Data not found yet, keep advancing S
+            tmpS = tmpS->next;
+        }
     }
 
     return *this;
@@ -268,18 +258,21 @@ const Set<T>& Set<T>::operator-=(const Set & S) {
 }
 
 template<class T>
-Set<T> Set<T>::operator+(const Set& S) {
-    return (*this)+= S;
+Set<T> Set<T>::operator+(const Set& S) const {
+    Set<T> ret(*this);
+    return ret += S;
 }
 
 template<class T>
-Set<T> Set<T>::operator*(const Set& S) {
-    return (*this)*= S;
+Set<T> Set<T>::operator*(const Set& S) const {
+    Set<T> ret(*this);
+    return ret *= S;
 }
 
 template<class T>
-Set<T> Set<T>::operator-(const Set& S) {
-    return (*this)-= S;
+Set<T> Set<T>::operator-(const Set& S) const {
+    Set<T> ret(*this);
+    return ret -= S;
 }
 
 template<class T>
