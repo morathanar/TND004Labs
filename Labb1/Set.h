@@ -279,7 +279,7 @@ template<class T>
 bool Set<T>::operator<=(Set& S){
     auto tmpS = S.head->next;
     auto tmpR = head->next;
-    if(S._empty() || (*this)._empty()) return false;
+    if(S._empty() || _empty()) return false;
     while(tmpS->next != S.tail){
         if(tmpR->next == tail) return true;
         if(tmpR->data == tmpS->data){
@@ -293,7 +293,7 @@ bool Set<T>::operator<=(Set& S){
 
 template<class T>
 bool Set<T>::operator<(Set& S){
-    if( ( S.cardinality() > (*this).cardinality() ) && (*this <= S) ) return true;
+    if( ( S.cardinality() > cardinality() ) && (*this <= S) ) return true;
     else return false;
 }
 
