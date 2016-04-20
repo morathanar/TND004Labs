@@ -21,6 +21,7 @@ public:
     int cardinality();
     bool is_member(const T & v);
     void make_empty();
+    bool _empty();
 
     // Operators
     const Set& operator=(Set S);          // Assignment
@@ -32,6 +33,10 @@ public:
     Set operator*(const Set& S);
     Set operator-(const Set& S);
 
+    bool operator<=(const Set& S);
+    bool operator<(const Set& S);
+    bool operator==(const Set& S);
+    bool operator!=(const Set& S);
 
     // Formatted output operator<<
     friend ostream& operator<<(ostream& os, const Set<T> & S){
@@ -190,6 +195,11 @@ void Set<T>::make_empty() {
         remove_node(head->next);
     }
 }
+template<class T>
+bool Set<T>::_empty(){
+    if(head->next == tail)return true;
+    else return false;
+}
 
 /*
 * Operators
@@ -272,5 +282,38 @@ Set<T> Set<T>::operator-(const Set& S) {
     return (*this)-= S;
 }
 
+template<class T>
+bool Set<T>::operator<=(const Set& S){
+    auto tmpS = S.head->next;
+    auto tmpR = head->next;
+    if(S._empty() || this._empty()) return false;
+    while(tmpS->next != S.tail){
+        if(tmpR->next == tail) return true;
+        if(tmpR->value == tmpS->value){
+            tmpR = tmpR->next;
+            tmpS = tmpS->next;
+        }
+        else tmpS = tmpS->next;
+    }
+    return false;
+}
+
+template<class T>
+bool Set<T>::operator<(const Set& S){
+    if( ( S.cardinality() > this.cardinality() ) && (this <= S) ) return true;
+    else return false;
+}
+
+template<class T>
+bool Set<T>::operator==(const Set& S){
+    if( ( this <= S ) && ( S <= this) )return true;
+    else() return false;
+}
+
+template<class T>
+bool Set<T>::operator!=(const Set& S){
+    if( this == S )return false;
+    else return true;
+}
 #endif // SET_H
 
