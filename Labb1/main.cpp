@@ -164,7 +164,7 @@ int main()
     cout << "S5 = " << S5 << endl;
     cout << "S6 = " << S6 << endl;
 
-#if 0
+
     /*****************************************************
     * TEST PHASE 10                                       *
     * Overloaded operators: equality, subset, and        *
@@ -176,7 +176,7 @@ int main()
     cout << "S4!== S1 ? " << (S4 != S1 ? 'T' : 'F') << endl;
     cout << "S4 <= S1 ? " << (S4 <= S1 ? 'T' : 'F') << endl;
     cout << "S4 <  S1 ? " << (S4 <  S1 ? 'T' : 'F') << endl;
-
+#if 0
     /*****************************************************
     * TEST PHASE 11                                       *
     * Overloaded operators: mixed-mode arithmetic        *

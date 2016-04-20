@@ -33,10 +33,10 @@ public:
     Set operator*(const Set& S) const;
     Set operator-(const Set& S) const;
 
-    bool operator<=(const Set& S);
-    bool operator<(const Set& S);
-    bool operator==(const Set& S);
-    bool operator!=(const Set& S);
+    bool operator<=(Set& S);
+    bool operator<(Set& S);
+    bool operator==(Set& S);
+    bool operator!=(Set& S);
 
     // Formatted output operator<<
     friend ostream& operator<<(ostream& os, const Set<T> & S){
@@ -276,13 +276,13 @@ Set<T> Set<T>::operator-(const Set& S) const {
 }
 
 template<class T>
-bool Set<T>::operator<=(const Set& S){
+bool Set<T>::operator<=(Set& S){
     auto tmpS = S.head->next;
     auto tmpR = head->next;
-    if(S._empty() || this._empty()) return false;
+    if(S._empty() || (*this)._empty()) return false;
     while(tmpS->next != S.tail){
         if(tmpR->next == tail) return true;
-        if(tmpR->value == tmpS->value){
+        if(tmpR->data == tmpS->data){
             tmpR = tmpR->next;
             tmpS = tmpS->next;
         }
@@ -292,20 +292,20 @@ bool Set<T>::operator<=(const Set& S){
 }
 
 template<class T>
-bool Set<T>::operator<(const Set& S){
-    if( ( S.cardinality() > this.cardinality() ) && (this <= S) ) return true;
+bool Set<T>::operator<(Set& S){
+    if( ( S.cardinality() > (*this).cardinality() ) && (*this <= S) ) return true;
     else return false;
 }
 
 template<class T>
-bool Set<T>::operator==(const Set& S){
-    if( ( this <= S ) && ( S <= this) )return true;
-    else() return false;
+bool Set<T>::operator==(Set& S){
+    if( ( *this <= S ) && ( S <= *this ) )return true;
+    else return false;
 }
 
 template<class T>
-bool Set<T>::operator!=(const Set& S){
-    if( this == S )return false;
+bool Set<T>::operator!=(Set& S){
+    if( *this == S )return false;
     else return true;
 }
 #endif // SET_H
