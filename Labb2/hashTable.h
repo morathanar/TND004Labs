@@ -143,6 +143,10 @@ private:
     //Disable assignment operator!!
     const HashTable& operator=(const HashTable &) = delete;
 
+    void rehash();
+
+    Item<Key_Type, Value_Type>* help_find(const Key_Type& key);
+
 };
 
 
@@ -162,9 +166,10 @@ int nextPrime( int n );
 //f is the hash function
 template <typename Key_Type, typename Value_Type>
 HashTable<Key_Type, Value_Type>::HashTable(int table_size, HASH f)
-    : h(f)
+    : h(f), _size(table_size), nItems(0), nDeleted(0), total_visited_slots(0), count_new_items(0)
 {
-    //IMPLEMENT
+    //cout << "ctor, " << "size:" << table_size << endl;
+    hTable = new Item<Key_Type, Value_Type>*[table_size]();
 }
 
 
@@ -172,7 +177,13 @@ HashTable<Key_Type, Value_Type>::HashTable(int table_size, HASH f)
 template <typename Key_Type, typename Value_Type>
 HashTable<Key_Type, Value_Type>::~HashTable()
 {
-    //IMPLEMENT
+    //cout << "dtor" << endl;
+    for (size_t i = 0; i < _size; i++) {
+        if(hTable[i] != nullptr) {
+            delete hTable[i];
+        }
+    }
+    delete[] hTable;
 }
 
 
@@ -181,11 +192,22 @@ HashTable<Key_Type, Value_Type>::~HashTable()
 template <typename Key_Type, typename Value_Type>
 const Value_Type* HashTable<Key_Type, Value_Type>::_find(const Key_Type& key)
 {
-   //IMPLEMENT
+    auto tmp_hash = h(key, _size);
 
-   return (new Value_Type()); //delete this code
+    //cout << "_find, " << "key:" << key << " hash:" << tmp_hash << endl;
+
+    while(hTable[tmp_hash] != nullptr) {
+        if (hTable[tmp_hash]->get_key() == key) {
+            return &hTable[tmp_hash]->get_value();
+        }
+        // Wrap around to 0
+        tmp_hash = ++tmp_hash % (_size);
+        total_visited_slots++;
+    }
+
+    // key not found
+    return nullptr;
 }
-
 
 //Insert the Item (key, v) in the table
 //If key already exists in the table then change the value associated with key to v
@@ -193,7 +215,28 @@ const Value_Type* HashTable<Key_Type, Value_Type>::_find(const Key_Type& key)
 template <typename Key_Type, typename Value_Type>
 void HashTable<Key_Type, Value_Type>::_insert(const Key_Type& key, const Value_Type& v)
 {
-     //IMPLEMENT
+    auto tmp_hash = h(key, _size);
+
+    //cout << "_insert, " << "key:" << key << " hash:" << tmp_hash << " value:" << v << endl;
+
+    while(hTable[tmp_hash]!= nullptr){
+        if(hTable[tmp_hash]->get_key() == key){
+            hTable[tmp_hash]->set_value(v);
+            return;
+        }
+        tmp_hash = ++tmp_hash % (_size);
+        total_visited_slots++;
+    }
+
+    nItems++;
+    hTable[tmp_hash] = new Item<Key_Type, Value_Type>(key,v);
+    count_new_items++;
+
+    if(loadFactor() >= 0.5) {
+        rehash();
+    }
+
+    return;
 }
 
 
@@ -203,9 +246,50 @@ void HashTable<Key_Type, Value_Type>::_insert(const Key_Type& key, const Value_T
 template <typename Key_Type, typename Value_Type>
 bool HashTable<Key_Type, Value_Type>::_remove(const Key_Type& key)
 {
-    //IMPLEMENT
-
+    auto tmp_hash = h(key, _size);
+    while(hTable[tmp_hash]!= nullptr){
+        total_visited_slots++;
+        if(hTable[tmp_hash]->get_key() == key){
+            delete hTable[tmp_hash];
+            hTable[tmp_hash] = Deleted_Item<Key_Type, Value_Type>::get_Item();
+            nItems--;
+            nDeleted++;
+            return true;
+        }
+    }
     return false;
+}
+
+// Return reference to the value of the object that has the supplied key..
+template <typename Key_Type, typename Value_Type>
+Value_Type& HashTable<Key_Type, Value_Type>::operator[](const Key_Type& key)
+{
+    auto tmp = help_find(key);
+    if (tmp == nullptr) {
+        _insert(key, Value_Type());
+        return help_find(key)->get_value();
+    }
+    return tmp->get_value();
+}
+
+template <typename Key_Type, typename Value_Type>
+Item<Key_Type, Value_Type>* HashTable<Key_Type, Value_Type>::help_find(const Key_Type& key)
+{
+    auto tmp_hash = h(key, _size);
+
+    //cout << "help_find, " << "key:" << key << " hash:" << tmp_hash << endl;
+
+    while(hTable[tmp_hash] != nullptr) {
+        if (hTable[tmp_hash]->get_key() == key) {
+            return hTable[tmp_hash];
+        }
+        // Wrap around to 0
+        tmp_hash = ++tmp_hash % (_size);
+        total_visited_slots++;
+    }
+
+    // key not found
+    return nullptr;
 }
 
 
@@ -246,7 +330,35 @@ void HashTable<Key_Type, Value_Type>::display(ostream& os)
 * Auxiliar member functions           *
 * *********************************** */
 //Add any if needed
+template <typename Key_Type, typename Value_Type>
+void HashTable<Key_Type, Value_Type>::rehash()
+{
 
+    auto old_hTable = hTable;
+    auto old_size = _size;
+
+    nItems = 0;
+
+    // Allocate a new array
+    _size = nextPrime(2 * old_size);
+    hTable = new Item<Key_Type, Value_Type>*[_size]();
+
+
+    // Copy elements over to new array
+    for (size_t i = 0; i < old_size; i++) {
+        if (old_hTable[i] != nullptr && old_hTable[i] != Deleted_Item<Key_Type, Value_Type>::get_Item()) {
+            _insert(old_hTable[i]->get_key(), old_hTable[i]->get_value());
+        }
+    }
+
+    // delete old array
+    for (size_t i = 0; i < old_size; i++) {
+        if(old_hTable[i] != nullptr) {
+            delete old_hTable[i];
+        }
+    }
+    delete[] old_hTable;
+}
 
 /* ********************************** *
 * Functions to find prime numbers     *
