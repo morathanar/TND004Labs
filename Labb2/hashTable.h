@@ -256,6 +256,7 @@ bool HashTable<Key_Type, Value_Type>::_remove(const Key_Type& key)
             nDeleted++;
             return true;
         }
+        tmp_hash = ++tmp_hash % _size;
     }
     return false;
 }
