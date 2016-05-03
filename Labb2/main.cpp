@@ -20,6 +20,8 @@ const unsigned SEED = 1159241;
 
 const string PUNCT = ".,!?:\"();";
 
+#define TABLE_SIZE 800
+
 
 //Hash function for English words
 //Polynomial accumulation
@@ -29,7 +31,7 @@ unsigned _hash(string s, int tableSize);
 
 int main()
 {
-    HashTable<string,int> freq_table(100, _hash);
+    HashTable<string,int> freq_table(TABLE_SIZE, _hash);
 
     string name;
 
