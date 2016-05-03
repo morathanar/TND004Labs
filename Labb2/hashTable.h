@@ -143,12 +143,9 @@ private:
     //Disable assignment operator!!
     const HashTable& operator=(const HashTable &) = delete;
 
-    unsigned help_find2(const Key_Type& key);
+    unsigned help_find(const Key_Type& key);
 
     void rehash();
-
-    Item<Key_Type, Value_Type>* help_find(const Key_Type& key);
-
 };
 
 
@@ -194,19 +191,13 @@ HashTable<Key_Type, Value_Type>::~HashTable()
 template <typename Key_Type, typename Value_Type>
 const Value_Type* HashTable<Key_Type, Value_Type>::_find(const Key_Type& key)
 {
-    auto tmp_hash = h(key, _size);
+    auto tmp_hash = help_find(key);
 
     //cout << "_find, " << "key:" << key << " hash:" << tmp_hash << endl;
 
-    while(hTable[tmp_hash] != nullptr) {
-        if (hTable[tmp_hash]->get_key() == key) {
-            return &hTable[tmp_hash]->get_value();
-        }
-        // Wrap around to 0
-        tmp_hash = ++tmp_hash % _size;
-        total_visited_slots++;
+    if (hTable[tmp_hash] != nullptr) {
+        return &hTable[tmp_hash]->get_value();
     }
-
     // key not found
     return nullptr;
 }
@@ -217,25 +208,19 @@ const Value_Type* HashTable<Key_Type, Value_Type>::_find(const Key_Type& key)
 template <typename Key_Type, typename Value_Type>
 void HashTable<Key_Type, Value_Type>::_insert(const Key_Type& key, const Value_Type& v)
 {
-    auto tmp_hash = h(key, _size);
-
     //cout << "_insert, " << "key:" << key << " hash:" << tmp_hash << " value:" << v << endl;
 
-    while(hTable[tmp_hash]!= nullptr){
-        total_visited_slots++;
+    auto tmp_hash = help_find(key);
 
-        if(hTable[tmp_hash]->get_key() == key){
-            hTable[tmp_hash]->set_value(v);
-            return;
-        }
-
-        tmp_hash++;
-        tmp_hash = tmp_hash % _size;
+    if (hTable[tmp_hash] == nullptr) {
+        // key was not already in hash table
+        hTable[tmp_hash] = new Item<Key_Type, Value_Type>(key,v);
+        count_new_items++;
+        nItems++;
+    } else {
+        // key was already in there, update the value.
+        hTable[tmp_hash]->get_value() = v;
     }
-
-    nItems++;
-    hTable[tmp_hash] = new Item<Key_Type, Value_Type>(key,v);
-    count_new_items++;
 
     if(loadFactor() >= 0.5) {
         rehash();
@@ -251,18 +236,16 @@ void HashTable<Key_Type, Value_Type>::_insert(const Key_Type& key, const Value_T
 template <typename Key_Type, typename Value_Type>
 bool HashTable<Key_Type, Value_Type>::_remove(const Key_Type& key)
 {
-    auto tmp_hash = h(key, _size);
-    while(hTable[tmp_hash]!= nullptr){
-        total_visited_slots++;
-        if(hTable[tmp_hash]->get_key() == key){
-            delete hTable[tmp_hash];
-            hTable[tmp_hash] = Deleted_Item<Key_Type, Value_Type>::get_Item();
-            nItems--;
-            nDeleted++;
-            return true;
-        }
-        tmp_hash = ++tmp_hash % _size;
+    auto tmp_hash = help_find(key);
+
+    if (hTable[tmp_hash] != nullptr) {
+        // Key found, delete item.
+        delete hTable[tmp_hash];
+        hTable[tmp_hash] = Deleted_Item<Key_Type, Value_Type>::get_Item();
+        return true;
     }
+
+    // No value was deleted
     return false;
 }
 
@@ -270,35 +253,26 @@ bool HashTable<Key_Type, Value_Type>::_remove(const Key_Type& key)
 template <typename Key_Type, typename Value_Type>
 Value_Type& HashTable<Key_Type, Value_Type>::operator[](const Key_Type& key)
 {
-    auto tmp = help_find(key);
-    if (tmp == nullptr) {
-        _insert(key, Value_Type());
-        return help_find(key)->get_value();
-    }
-    return tmp->get_value();
-}
+    auto tmp_hash = help_find(key);
+    if (hTable[tmp_hash] == nullptr) {
+        // Key not found, insert new default value
 
-template <typename Key_Type, typename Value_Type>
-Item<Key_Type, Value_Type>* HashTable<Key_Type, Value_Type>::help_find(const Key_Type& key)
-{
-    auto tmp_hash = h(key, _size);
+        hTable[tmp_hash] = new Item<Key_Type, Value_Type>(key,Value_Type());
+        count_new_items++;
+        nItems++;
 
-    //cout << "help_find, " << "key:" << key << " hash:" << tmp_hash << endl;
+        if (loadFactor() > 0.5) {
+            rehash();
 
-    while(hTable[tmp_hash] != nullptr) {
-        total_visited_slots++;
-        if (hTable[tmp_hash]->get_key() == key) {
-            return hTable[tmp_hash];
+            // Will always find key because we just inserted it.
+            return hTable[help_find(key)]->get_value();
         }
-        // Wrap around to 0
-        tmp_hash++;
-        tmp_hash = tmp_hash % (_size);
+        return hTable[tmp_hash]->get_value();
     }
 
-    // key not found
-    return nullptr;
+    // Key found, return ref to value.
+    return hTable[tmp_hash]->get_value();
 }
-
 
 //Display the table for debug and testing purposes
 //This function is used for debugging and testing purposes
@@ -339,14 +313,14 @@ void HashTable<Key_Type, Value_Type>::display(ostream& os)
 //Add any if needed
 
 
-// Finds the element represented by key orh the slot where it should be placed
+// Finds the element represented by key or the slot where it should be placed
 // by using linear probing.
 template <typename Key_Type, typename Value_Type>
-unsigned HashTable<Key_Type, Value_Type>::help_find2(const Key_Type& key)
+unsigned HashTable<Key_Type, Value_Type>::help_find(const Key_Type& key)
 {
     auto tmp_hash = h(key, _size);
 
-    //cout << "help_find2, " << "key:" << key << " hash:" << tmp_hash << endl;
+    //cout << "help_find, " << "key:" << key << " hash:" << tmp_hash << endl;
 
     while(hTable[tmp_hash] != nullptr) {
         total_visited_slots++;
@@ -357,6 +331,7 @@ unsigned HashTable<Key_Type, Value_Type>::help_find2(const Key_Type& key)
         tmp_hash++;
         tmp_hash = tmp_hash % _size;
     }
+    total_visited_slots++;
 
     // key was not found, return the currently selected slot. We are guaranteed to always find
     // an empty slot because table will rehash if load factor gets to 0.5
@@ -382,7 +357,7 @@ void HashTable<Key_Type, Value_Type>::rehash()
     for (size_t i = 0; i < old_size; i++) {
         if (old_hTable[i] != nullptr && old_hTable[i] != Deleted_Item<Key_Type, Value_Type>::get_Item()) {
             //_insert(old_hTable[i]->get_key(), old_hTable[i]->get_value());
-            hTable[help_find2(old_hTable[i]->get_key())] = old_hTable[i];
+            hTable[help_find(old_hTable[i]->get_key())] = old_hTable[i];
             old_hTable[i] = nullptr;
         }
     }
