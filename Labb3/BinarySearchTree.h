@@ -56,7 +56,7 @@ public:
         Comparable * operator->() const
         {
             if (current) {
-                return *(current->element);
+                return &(current->element);
             }
             return nullptr;
         }
