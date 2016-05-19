@@ -33,7 +33,7 @@
 		</Compiler>
 		<Unit filename="BinarySearchTree.h" />
 		<Unit filename="dsexceptions.h" />
-		<Unit filename="test3.cpp" />
+		<Unit filename="freq_main.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
