@@ -39,7 +39,7 @@ int main( )
 
     for(int i = 2; i < 36; i+=2 )
     {
-        if ( t1.contains() )
+        if ( t1.contains(i) )
             cout << i << " in the tree" << endl;
         else
             cout << i << " not in the tree" << endl;
