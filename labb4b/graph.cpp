@@ -130,8 +130,35 @@ void Graph::mstPrim() const
 void Graph::mstKruskal() const
 {
 
-    Heap<int> h;
+    Heap<Edge> h;
     DSets d(size);
+    int counter = 0;
+
+    d.init();
+
+    // Insert all edges in the heap
+    for (int v = 1; v <= size; v++) {
+        Node *n = array[v].getFirst();
+        while (n) {
+            Edge e(v, n->vertex, n->weight);
+            h.insert(e);
+            n = array[v].getNext();
+        }
+    }
+
+    while (counter < size-1) {
+        Edge e2 = h.deleteMin();
+
+        cout << "testing edge: " << e2 << endl;
+
+        if (d.find(e2.tail) != d.find(e2.head)) {
+            d.join(d.find(e2.tail), d.find(e2.head));
+            counter++;
+
+            cout << "found min edge:" << counter << endl;
+            d.print();
+        }
+    }
 
 }
 
