@@ -76,11 +76,27 @@ public:
             return *this;
         }
 
+        BiIterator operator++(int) //post-increment
+        {
+            BiIterator cpy(this);
+            current = find_successor(current);
+            return cpy;
+        }
+
         BiIterator & operator--() //pre-decrement
         {
             current = find_predecessor(current);
             return *this;
         }
+
+        BiIterator operator--(int) //post-decrement
+        {
+            BiIterator cpy(this);
+            current = find_predecessor(current);
+            return cpy;
+        }
+
+
     private:
         shared_ptr<BinaryNode> current;
     };
