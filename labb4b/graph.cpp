@@ -8,6 +8,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cassert>
+#include <vector>
 
 using namespace std;
 
@@ -132,6 +133,7 @@ void Graph::mstKruskal() const
 
     Heap<Edge> h;
     DSets d(size);
+    vector<Edge> selected_edges;
     int counter = 0;
 
     d.init();
@@ -140,25 +142,31 @@ void Graph::mstKruskal() const
     for (int v = 1; v <= size; v++) {
         Node *n = array[v].getFirst();
         while (n) {
-            Edge e(v, n->vertex, n->weight);
-            h.insert(e);
+            if (v < n->vertex) {
+                h.insert(Edge(v, n->vertex, n->weight));
+            }
             n = array[v].getNext();
         }
     }
 
     while (counter < size-1) {
-        Edge e2 = h.deleteMin();
+        Edge e = h.deleteMin();
 
-        cout << "testing edge: " << e2 << endl;
-
-        if (d.find(e2.tail) != d.find(e2.head)) {
-            d.join(d.find(e2.tail), d.find(e2.head));
+        if (d.find(e.tail) != d.find(e.head)) {
+            d.join(d.find(e.tail), d.find(e.head));
             counter++;
 
-            cout << "found min edge:" << counter << endl;
-            d.print();
+            selected_edges.push_back(e);
         }
     }
+
+    int total_weight = 0;
+
+    for (auto edge : selected_edges) {
+        cout << edge << endl;
+        total_weight += edge.weight;
+    }
+    cout << "Total weight = " << total_weight << endl;
 
 }
 

@@ -37,8 +37,8 @@ int main()
             case 1:
                 cout << "File name   ? ";
                 cout << flush;
-                //getline(cin, fileName);
-                fileName = "graph1.txt";
+                getline(cin, fileName);
+                //fileName = "graph1.txt";
                 temp = readGraph(fileName);
                 if (temp != nullptr)
                 {

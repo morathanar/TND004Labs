@@ -53,10 +53,22 @@ void DSets::join(int r, int s)
     assert(array[s] < 0);
 
     // simple union
-    array[r]  = s;
+    //array[r]  = s;
 
-    // *** TODO ***
     // weighted union (by size)
+    if (r < s) {
+        // Update size of new root node
+        array[r] += array[s];
+
+        // tree merge trees with r as new root
+        array[s] = r;
+    } else {
+        // Update size of new root node
+        array[s] += array[r];
+
+        // tree merge trees with r as new root
+        array[r] = s;
+    }
 }
 
 // return name of current set for x
@@ -72,11 +84,8 @@ int DSets::find(int x)
     }
     else
     {
-        return find(array[x]);
+        return array[x] = find(array[x]);
     }
-
-    // *** TODO ***
-    // find with path compression
 }
 
 // just in case ...
